@@ -17,7 +17,7 @@ outDim=nCategories
 
 class toy_NN:
     def __init__(self,inDim,nHiddenLayer,outDim,batchNorm=False):
-        #Initilize the weights. Such a shallow network doesn't require Xavier initialzation.
+        #Initialize the weights. Such a shallow network doesn't require Xavier initialization.
         self.w1=np.random.rand(inDim,nHiddenLayer)-.5
         self.b1=np.random.rand(nHiddenLayer)-.5
         self.w2=np.random.rand(nHiddenLayer,outDim)-.5
