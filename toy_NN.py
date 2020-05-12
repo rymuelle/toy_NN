@@ -10,8 +10,8 @@ i=np.linspace(0,3,4,dtype='int')
 y1=np.zeros((4,4))
 y1[i,i]=1
 
-#define some hyper paramters, nHiddenLayer defines the hidden layer, outDim defines the output layer
-#outDim is set to equal the number of inputs as we have the same nuber of examples as classifications
+#define some hyper parameters, nHiddenLayer defines the hidden layer, outDim defines the output layer
+#outDim is set to equal the number of inputs as we have the same number of examples as classifications
 nHiddenLayer=7
 outDim=nCategories
 
