@@ -1,4 +1,5 @@
 import numpy as np
+import matplotlib.pyplot as plt
 import math
 
 #create a fake dataset to train on
@@ -23,16 +24,16 @@ class toy_NN:
         self.b2=np.random.rand(outDim)-.5
         self.batchNorm=batchNorm
         #save initial values 
-        self.w1Init = self.w1
-        self.b1Init = self.b1
-        self.w2Init = self.w2
-        self.b2Init = self.b2
+        self.w1Init=self.w1.copy()
+        self.b1Init=self.b1.copy()
+        self.w2Init=self.w2.copy()
+        self.b2Init=self.b2.copy()
 
     def reset(self):
-        self.w1=self.w1Init
-        self.b1=self.b1Init
-        self.w2=self.w2Init
-        self.b2=self.b2Init
+        self.w1=self.w1Init.copy()
+        self.b1=self.b1Init.copy()
+        self.w2=self.w2Init.copy()
+        self.b2=self.b2Init.copy()
 
     def softMax(self,output):
         exponent=np.exp(output)
@@ -99,12 +100,48 @@ class toy_NN:
         reg_loss=0.5*reg*(np.sum(self.w1)+np.sum(self.b1)+np.sum(self.w2)+np.sum(self.b2))
         return np.mean(loss)+reg_loss
 
-rand_net=toy_NN(inDim,nHiddenLayer,outDim)
-reg=1e-4 # regularization strength
-lRate=1e-1 #learing rate
-for i in range(10000):
-    loss=rand_net.train(dataset,y1,nCategories,lRate,reg)
-    if math.isnan(loss): break
-    if i%20==0: print i,loss
+if __name__ == "__main__":
+    rand_net=toy_NN(inDim,nHiddenLayer,outDim)
+    reg=1e-4 # regularization strength
+    lRate=np.logspace(-5,0,6) #learing rate
+    nIter=1000
+    plottingDict={}
+    minLoss=1000
+    optimalRate=1e-5
+    sampleEvery=10
+    x=[]
+    for count,rate in enumerate(lRate):
+        print "-----learning rate:{}-----".format(rate)
+        plottingDict[rate]=[]
+        for i in range(nIter):
+            loss=rand_net.train(dataset,y1,nCategories,rate,reg)
+            if math.isnan(loss): break
+            if i%sampleEvery==0: 
+                plottingDict[rate].append(loss)
+                if count==0: x.append(i)
 
-print rand_net.forwardPassProp(dataset)
+        if minLoss>loss:
+            minLoss=loss
+            optimalRate=rate
+        print "loss:{}".format(minLoss)
+        rand_net.reset()
+
+    for rate in plottingDict:
+        plt.plot(x,plottingDict[rate],label=rate)
+        plt.legend()
+
+    plt.title("Loss as a function of learning rate") 
+    plt.xlabel("n Iterations") 
+    plt.ylabel("loss")
+    plt.savefig("output/loss.png")
+    plt.yscale("log")
+    plt.savefig("output/loss_log.png")
+    plt.show()
+
+    print "optimal rate:{} at loss:{}".format(optimalRate,minLoss)    
+    for i in range(nIter):
+            loss=rand_net.train(dataset,y1,nCategories,optimalRate,reg)
+            if math.isnan(loss): break
+
+    print "prediction (diagonal is optimal)"
+    print rand_net.forwardPassProp(dataset).round(4)
